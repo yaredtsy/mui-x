@@ -9,6 +9,7 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import { capitalize, unstable_useId as useId } from '@mui/material/utils';
 import { styled } from '@mui/material/styles';
 import clsx from 'clsx';
+
 import { gridFilterableColumnDefinitionsSelector } from '../../../hooks/features/columns/gridColumnsSelector';
 import { gridFilterModelSelector } from '../../../hooks/features/filter/gridFilterSelector';
 import { useGridSelector } from '../../../hooks/utils/useGridSelector';
@@ -136,8 +137,13 @@ const GridFilterFormRoot = styled('div', {
   slot: 'FilterForm',
   overridesResolver: (props, styles) => styles.filterForm,
 })(({ theme }) => ({
-  display: 'flex',
-  padding: theme.spacing(1),
+  display: 'grid',
+  gridTemplateColumns: `1fr 1fr  1fr 1fr`,
+  gridTemplateRows: `min-content 1fr 1fr 1fr`,
+  gap: theme.spacing(2),
+  minWidth: 100,
+
+  flexDirection: 'column',
 }));
 
 const FilterFormDeleteIcon = styled(FormControl, {
@@ -146,7 +152,10 @@ const FilterFormDeleteIcon = styled(FormControl, {
   overridesResolver: (_, styles) => styles.filterFormDeleteIcon,
 })(({ theme }) => ({
   flexShrink: 0,
-  justifyContent: 'flex-end',
+  gridArea: 'button',
+  gridColumn: '1/-1',
+  gridRow: '4/5',
+  borderRadius: 10,
   marginRight: theme.spacing(0.5),
   marginBottom: theme.spacing(0.2),
 }));
@@ -158,26 +167,29 @@ const FilterFormLinkOperatorInput = styled(FormControl, {
 })({
   minWidth: 55,
   marginRight: 5,
+  gridColumn: '2/4',
+  gridRow: '1/2',
   justifyContent: 'end',
+  backgroundColor: 'white',
 });
 
 const FilterFormColumnInput = styled(FormControl, {
   name: 'MuiDataGrid',
   slot: 'FilterFormColumnInput',
   overridesResolver: (_, styles) => styles.filterFormColumnInput,
-})({ width: 150 });
+})({ backgroundColor: 'white', gridColumn: '1/3', gridRow: '2/3' });
 
 const FilterFormOperatorInput = styled(FormControl, {
   name: 'MuiDataGrid',
   slot: 'FilterFormOperatorInput',
   overridesResolver: (_, styles) => styles.filterFormOperatorInput,
-})({ width: 120 });
+})({ backgroundColor: 'white', gridColumn: '3/5', gridRow: '2/3' });
 
 const FilterFormValueInput = styled(FormControl, {
   name: 'MuiDataGrid',
   slot: 'FilterFormValueInput',
   overridesResolver: (_, styles) => styles.filterFormValueInput,
-})({ width: 190 });
+})({ backgroundColor: 'white', gridColumn: '1/-1', gridRow: '3/4' });
 
 const getLinkOperatorLocaleKey = (linkOperator: GridLinkOperator) => {
   switch (linkOperator) {
@@ -390,12 +402,23 @@ const GridFilterForm = React.forwardRef<HTMLDivElement, GridFilterFormProps>(
             title={apiRef.current.getLocaleText('filterPanelDeleteIconLabel')}
             onClick={handleDeleteFilter}
             size="small"
+            sx={{
+              borderRadius: 2,
+              color: 'red',
+              backgroundColor: 'white',
+              outline: '1px solid #63636365',
+              '&:hover': {
+                backgroundColor: 'white',
+                outline: '2px solid #3399FF',
+              },
+            }}
           >
             <rootProps.components.FilterPanelDeleteIcon fontSize="small" />
           </IconButton>
         </FilterFormDeleteIcon>
         <FilterFormLinkOperatorInput
-          variant="standard"
+          variant="outlined"
+          size="small"
           as={rootProps.components.BaseFormControl}
           {...baseFormControlProps}
           {...linkOperatorInputProps}
@@ -412,6 +435,7 @@ const GridFilterForm = React.forwardRef<HTMLDivElement, GridFilterFormProps>(
           )}
         >
           <rootProps.components.BaseSelect
+            size="small"
             inputProps={{
               'aria-label': apiRef.current.getLocaleText('filterPanelLinkOperator'),
             }}
@@ -429,7 +453,8 @@ const GridFilterForm = React.forwardRef<HTMLDivElement, GridFilterFormProps>(
           </rootProps.components.BaseSelect>
         </FilterFormLinkOperatorInput>
         <FilterFormColumnInput
-          variant="standard"
+          size="small"
+          variant="outlined"
           as={rootProps.components.BaseFormControl}
           {...baseFormControlProps}
           {...columnInputProps}
@@ -439,10 +464,11 @@ const GridFilterForm = React.forwardRef<HTMLDivElement, GridFilterFormProps>(
             columnInputProps.className,
           )}
         >
-          <InputLabel htmlFor={columnSelectId} id={columnSelectLabelId}>
+          <InputLabel htmlFor={columnSelectId} id={columnSelectLabelId} size="small">
             {apiRef.current.getLocaleText('filterPanelColumns')}
           </InputLabel>
           <rootProps.components.BaseSelect
+            size="small"
             labelId={columnSelectLabelId}
             id={columnSelectId}
             label={apiRef.current.getLocaleText('filterPanelColumns')}
@@ -459,7 +485,8 @@ const GridFilterForm = React.forwardRef<HTMLDivElement, GridFilterFormProps>(
           </rootProps.components.BaseSelect>
         </FilterFormColumnInput>
         <FilterFormOperatorInput
-          variant="standard"
+          size="small"
+          variant="outlined"
           as={rootProps.components.BaseFormControl}
           {...baseFormControlProps}
           {...operatorInputProps}
@@ -473,6 +500,7 @@ const GridFilterForm = React.forwardRef<HTMLDivElement, GridFilterFormProps>(
             {apiRef.current.getLocaleText('filterPanelOperators')}
           </InputLabel>
           <rootProps.components.BaseSelect
+            size="small"
             labelId={operatorSelectLabelId}
             label={apiRef.current.getLocaleText('filterPanelOperators')}
             id={operatorSelectId}
@@ -493,6 +521,7 @@ const GridFilterForm = React.forwardRef<HTMLDivElement, GridFilterFormProps>(
           </rootProps.components.BaseSelect>
         </FilterFormOperatorInput>
         <FilterFormValueInput
+          size="small"
           variant="standard"
           as={rootProps.components.BaseFormControl}
           {...baseFormControlProps}
@@ -505,6 +534,8 @@ const GridFilterForm = React.forwardRef<HTMLDivElement, GridFilterFormProps>(
         >
           {currentOperator?.InputComponent ? (
             <currentOperator.InputComponent
+              size="small"
+              variant="outlined"
               apiRef={apiRef}
               item={item}
               applyValue={applyFilterChanges}
