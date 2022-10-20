@@ -38,7 +38,7 @@ export function binarySearch(
   }
 
   const pivot = sliceStart + Math.floor((sliceEnd - sliceStart) / 2);
-  const itemOffset = positions[pivot];
+  const itemOffset = Math.abs(positions[pivot]);
   return offset <= itemOffset
     ? binarySearch(offset, positions, sliceStart, pivot)
     : binarySearch(offset, positions, pivot + 1, sliceEnd);
@@ -47,7 +47,7 @@ export function binarySearch(
 function exponentialSearch(offset: number, positions: number[], index: number): number {
   let interval = 1;
 
-  while (index < positions.length && positions[index] < offset) {
+  while (index < positions.length && Math.abs(positions[index]) < offset) {
     index += interval;
     interval *= 2;
   }
@@ -183,8 +183,8 @@ export const useGridVirtualScroller = (props: UseGridVirtualScrollerProps) => {
     }
 
     if (!hasRowWithAutoHeight) {
-      firstColumnIndex = binarySearch(left, columnPositions);
-      lastColumnIndex = binarySearch(left + containerWidth!, columnPositions);
+      firstColumnIndex = binarySearch(Math.abs(left), columnPositions);
+      lastColumnIndex = binarySearch(Math.abs(left) + containerWidth!, columnPositions);
     }
 
     return {
@@ -252,8 +252,11 @@ export const useGridVirtualScroller = (props: UseGridVirtualScrollerProps) => {
         visibleRows: currentPage.rows,
       });
 
+      // TODO: look for better way to detect display direction
+      const direction = rootRef.current!.scrollLeft > 0 ? 1 : -1;
+
       const top = gridRowsMetaSelector(apiRef.current.state).positions[firstRowToRender];
-      const left = gridColumnPositionsSelector(apiRef)[firstColumnToRender]; // Call directly the selector because it might be outdated when this method is called
+      const left = direction * gridColumnPositionsSelector(apiRef)[firstColumnToRender]; // Call directly the selector because it might be outdated when this method is called
       renderZoneRef.current!.style.transform = `translate3d(${left}px, ${top}px, 0px)`;
 
       if (typeof onRenderZonePositioning === 'function') {
@@ -318,7 +321,8 @@ export const useGridVirtualScroller = (props: UseGridVirtualScrollerProps) => {
     scrollPosition.current.left = scrollLeft;
 
     // On iOS and macOS, negative offsets are possible when swiping past the start
-    if (scrollLeft < 0 || scrollTop < 0 || !prevRenderContext.current) {
+    // Allowed negative offsets to support rtl direction
+    if (!prevRenderContext.current) {
       return;
     }
 

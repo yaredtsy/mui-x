@@ -127,9 +127,12 @@ export const useGridColumnHeaders = (props: UseGridColumnHeadersProps) => {
         visibleRows: currentPage.rows,
       });
 
+      // TODO: look for better way to detect display direction
+      const direction = prevScrollLeft.current > 0 ? 1 : -1;
+
       const offset =
         firstColumnToRender > 0
-          ? prevScrollLeft.current - columnPositions[firstColumnToRender]
+          ? prevScrollLeft.current - direction * columnPositions[firstColumnToRender]
           : prevScrollLeft.current;
 
       innerRef!.current!.style.transform = `translate3d(${-offset}px, 0px, 0px)`;
