@@ -129,8 +129,6 @@ export const useGridColumnHeaders = (props: UseGridColumnHeadersProps) => {
         visibleRows: currentPage.rows,
       });
 
-      // TODO: look for better way to detect display direction
-
       const direction = theme.direction === 'ltr' ? 1 : -1;
 
       const offset =
