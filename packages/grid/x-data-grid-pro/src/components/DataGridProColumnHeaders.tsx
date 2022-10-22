@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { unstable_composeClasses as composeClasses } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
+import { useTheme } from '@mui/system';
 import { useEventCallback } from '@mui/material/utils';
 import {
   getDataGridUtilityClass,
@@ -99,6 +100,8 @@ export const DataGridProColumnHeaders = React.forwardRef<
   DataGridProColumnHeadersProps
 >(function DataGridProColumnHeaders(props, ref) {
   const { style, className, innerRef, ...other } = props;
+
+  const theme = useTheme();
   const rootProps = useGridRootProps();
   const apiRef = useGridApiContext();
   const visibleColumnFields = useGridSelector(apiRef, gridVisibleColumnFieldsSelector);
@@ -164,8 +167,12 @@ export const DataGridProColumnHeaders = React.forwardRef<
     <GridColumnHeaders ref={ref} className={className} {...getRootProps(other)}>
       {leftRenderContext && (
         <GridColumnHeadersPinnedColumnHeaders
-          className={classes.leftPinnedColumns}
-          ownerState={{ side: GridPinnedPosition.left }}
+          className={
+            theme.direction === 'ltr' ? classes.leftPinnedColumns : classes.rightPinnedColumns
+          }
+          ownerState={{
+            side: theme.direction === 'ltr' ? GridPinnedPosition.left : GridPinnedPosition.right,
+          }}
           {...pinnedColumnHeadersProps}
         >
           {getColumnGroupHeaders({
@@ -197,8 +204,12 @@ export const DataGridProColumnHeaders = React.forwardRef<
       </GridColumnHeadersInner>
       {rightRenderContext && (
         <GridColumnHeadersPinnedColumnHeaders
-          ownerState={{ side: GridPinnedPosition.right }}
-          className={classes.rightPinnedColumns}
+          ownerState={{
+            side: theme.direction === 'ltr' ? GridPinnedPosition.right : GridPinnedPosition.left,
+          }}
+          className={
+            theme.direction === 'ltr' ? classes.leftPinnedColumns : classes.rightPinnedColumns
+          }
           style={{ paddingRight: scrollbarSize }}
           {...pinnedColumnHeadersProps}
         >
