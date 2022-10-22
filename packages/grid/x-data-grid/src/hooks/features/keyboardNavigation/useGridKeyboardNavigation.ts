@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useTheme } from '@mui/system';
+
 import { GridEventListener } from '../../../models/events';
 import { GridApiCommunity } from '../../../models/api/gridApiCommunity';
 import { GridCellParams } from '../../../models/params/gridCellParams';
@@ -40,6 +42,7 @@ export const useGridKeyboardNavigation = (
 ): void => {
   const logger = useGridLogger(apiRef, 'useGridKeyboardNavigation');
   const initialCurrentPageRows = useGridVisibleRows(apiRef, props).rows;
+  const theme = useTheme();
 
   const currentPageRows = React.useMemo(
     () => enrichPageRowsWithPinnedRows(apiRef, initialCurrentPageRows),
@@ -102,6 +105,7 @@ export const useGridKeyboardNavigation = (
       }
 
       const viewportPageSize = apiRef.current.unstable_getViewportPageSize();
+      const direction = theme.direction;
 
       const colIndexBefore = (params as GridCellParams).field
         ? apiRef.current.getColumnIndex((params as GridCellParams).field)
@@ -134,15 +138,27 @@ export const useGridKeyboardNavigation = (
         }
 
         case 'ArrowRight': {
-          if (colIndexBefore < lastColIndex) {
-            goToCell(colIndexBefore + 1, getRowIdFromIndex(rowIndexBefore), 'right');
+          if (direction === 'ltr') {
+            if (colIndexBefore < lastColIndex) {
+              goToCell(colIndexBefore + 1, getRowIdFromIndex(rowIndexBefore), 'right');
+            }
+          } else if (direction === 'rtl') {
+            if (colIndexBefore > firstColIndex) {
+              goToCell(colIndexBefore - 1, getRowIdFromIndex(rowIndexBefore), 'right');
+            }
           }
           break;
         }
 
         case 'ArrowLeft': {
-          if (colIndexBefore > firstColIndex) {
-            goToCell(colIndexBefore - 1, getRowIdFromIndex(rowIndexBefore));
+          if (direction === 'ltr') {
+            if (colIndexBefore > firstColIndex) {
+              goToCell(colIndexBefore - 1, getRowIdFromIndex(rowIndexBefore));
+            }
+          } else if (direction === 'rtl') {
+            if (colIndexBefore < lastColIndex) {
+              goToCell(colIndexBefore + 1, getRowIdFromIndex(rowIndexBefore));
+            }
           }
           break;
         }
@@ -223,7 +239,7 @@ export const useGridKeyboardNavigation = (
         event.preventDefault();
       }
     },
-    [apiRef, currentPageRows, goToCell, goToHeader, getRowIdFromIndex],
+    [apiRef, currentPageRows, goToCell, goToHeader, getRowIdFromIndex, theme.direction],
   );
 
   const handleColumnHeaderKeyDown = React.useCallback<GridEventListener<'columnHeaderKeyDown'>>(

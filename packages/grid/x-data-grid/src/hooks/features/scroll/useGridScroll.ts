@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTheme } from '@mui/system';
 import { GridCellIndexCoordinates } from '../../../models/gridCell';
 import { GridApiCommunity } from '../../../models/api/gridApiCommunity';
 import { useGridLogger } from '../../utils/useGridLogger';
@@ -30,13 +31,13 @@ function scrollIntoView(dimensions: {
   const elementBottom = offsetTop + offsetHeight;
   // Always scroll to top when cell is higher than viewport to avoid scroll jump
   // See https://github.com/mui/mui-x/issues/4513 and https://github.com/mui/mui-x/issues/4514
-  if (offsetHeight > clientHeight) {
+  if (Math.abs(offsetHeight) > Math.abs(clientHeight)) {
     return offsetTop;
   }
-  if (elementBottom - clientHeight > scrollTop) {
+  if (Math.abs(elementBottom) - Math.abs(clientHeight) > Math.abs(scrollTop)) {
     return elementBottom - clientHeight;
   }
-  if (offsetTop < scrollTop) {
+  if (Math.abs(offsetTop) < Math.abs(scrollTop)) {
     return offsetTop;
   }
   return undefined;
@@ -54,6 +55,7 @@ export const useGridScroll = (
   apiRef: React.MutableRefObject<GridApiCommunity>,
   props: Pick<DataGridProcessedProps, 'pagination'>,
 ): void => {
+  const theme = useTheme();
   const logger = useGridLogger(apiRef, 'useGridScroll');
   const colRef = apiRef.current.columnHeadersElementRef!;
   const windowRef = apiRef.current.windowRef!;
@@ -61,6 +63,8 @@ export const useGridScroll = (
 
   const scrollToIndexes = React.useCallback<GridScrollApi['scrollToIndexes']>(
     (params: Partial<GridCellIndexCoordinates>) => {
+      const direction = theme.direction === 'ltr' ? 1 : -1;
+
       const totalRowCount = gridRowCountSelector(apiRef);
       const visibleColumns = gridVisibleColumnDefinitionsSelector(apiRef);
       const scrollToHeader = params.rowIndex == null;
@@ -93,10 +97,10 @@ export const useGridScroll = (
         }
 
         scrollCoordinates.left = scrollIntoView({
-          clientHeight: windowRef.current!.clientWidth,
-          scrollTop: windowRef.current!.scrollLeft,
-          offsetHeight: cellWidth,
-          offsetTop: columnPositions[params.colIndex],
+          clientHeight: direction * windowRef.current!.clientWidth,
+          scrollTop: direction * windowRef.current!.scrollLeft,
+          offsetHeight: direction * cellWidth,
+          offsetTop: direction * columnPositions[params.colIndex],
         });
       }
       if (params.rowIndex != null) {
@@ -143,7 +147,7 @@ export const useGridScroll = (
 
       return false;
     },
-    [logger, apiRef, windowRef, props.pagination, visibleSortedRows],
+    [logger, apiRef, windowRef, props.pagination, visibleSortedRows, theme.direction],
   );
 
   const scroll = React.useCallback<GridScrollApi['scroll']>(
