@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useForkRef } from '@mui/material/utils';
+import { useTheme } from '@mui/system';
 import { useGridApiContext } from '../../utils/useGridApiContext';
 import { useGridRootProps } from '../../utils/useGridRootProps';
 import { useGridSelector } from '../../utils/useGridSelector';
@@ -97,6 +98,7 @@ export const useGridVirtualScroller = (props: UseGridVirtualScrollerProps) => {
     getRowProps,
   } = props;
 
+  const theme = useTheme();
   const columnPositions = useGridSelector(apiRef, gridColumnPositionsSelector);
   const columnsTotalWidth = useGridSelector(apiRef, gridColumnsTotalWidthSelector);
   const rowHeight = useGridSelector(apiRef, gridDensityRowHeightSelector);
@@ -253,8 +255,7 @@ export const useGridVirtualScroller = (props: UseGridVirtualScrollerProps) => {
       });
 
       // TODO: look for better way to detect display direction
-      const direction = rootRef.current!.scrollLeft > 0 ? 1 : -1;
-
+      const direction = theme.direction === 'ltr' ? 1 : -1;
       const top = gridRowsMetaSelector(apiRef.current.state).positions[firstRowToRender];
       const left = direction * gridColumnPositionsSelector(apiRef)[firstColumnToRender]; // Call directly the selector because it might be outdated when this method is called
       renderZoneRef.current!.style.transform = `translate3d(${left}px, ${top}px, 0px)`;
@@ -271,6 +272,7 @@ export const useGridVirtualScroller = (props: UseGridVirtualScrollerProps) => {
       renderZoneMaxColumnIndex,
       rootProps.columnBuffer,
       rootProps.rowBuffer,
+      theme.direction,
     ],
   );
 
@@ -321,9 +323,18 @@ export const useGridVirtualScroller = (props: UseGridVirtualScrollerProps) => {
     scrollPosition.current.left = scrollLeft;
 
     // On iOS and macOS, negative offsets are possible when swiping past the start
-    // Allowed negative offsets to support rtl direction
-    if (!prevRenderContext.current) {
+    if (!prevRenderContext.current || scrollTop < 0) {
       return;
+    }
+    if (theme.direction === 'ltr') {
+      if (scrollLeft < 0) {
+        return;
+      }
+    }
+    if (theme.direction === 'rtl') {
+      if (scrollLeft > 0) {
+        return;
+      }
     }
 
     // When virtualization is disabled, the context never changes during scroll

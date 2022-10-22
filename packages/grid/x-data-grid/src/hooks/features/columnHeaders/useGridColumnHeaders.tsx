@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useForkRef } from '@mui/material/utils';
 import { styled } from '@mui/material/styles';
+import { useTheme } from '@mui/system';
 import { defaultMemoize } from 'reselect';
 import { useGridApiContext } from '../../utils/useGridApiContext';
 import { useGridSelector } from '../../utils/useGridSelector';
@@ -71,6 +72,7 @@ function isUIEvent(event: any): event is React.UIEvent {
 
 export const useGridColumnHeaders = (props: UseGridColumnHeadersProps) => {
   const { innerRef: innerRefProp, minColumnIndex = 0 } = props;
+  const theme = useTheme();
 
   const [dragCol, setDragCol] = React.useState('');
   const [resizeCol, setResizeCol] = React.useState('');
@@ -128,7 +130,8 @@ export const useGridColumnHeaders = (props: UseGridColumnHeadersProps) => {
       });
 
       // TODO: look for better way to detect display direction
-      const direction = prevScrollLeft.current > 0 ? 1 : -1;
+
+      const direction = theme.direction === 'ltr' ? 1 : -1;
 
       const offset =
         firstColumnToRender > 0
@@ -144,6 +147,7 @@ export const useGridColumnHeaders = (props: UseGridColumnHeadersProps) => {
       apiRef,
       currentPage.rows,
       rootProps.rowBuffer,
+      theme.direction,
     ],
   );
 
