@@ -182,6 +182,7 @@ const DataGridProVirtualScroller = React.forwardRef<
   DataGridProVirtualScrollerProps
 >(function DataGridProVirtualScroller(props, ref) {
   const { className, disableVirtualization, ...other } = props;
+
   const apiRef = useGridApiContext();
   const rootProps = useGridRootProps();
   const visibleColumnFields = useGridSelector(apiRef, gridVisibleColumnFieldsSelector);
@@ -409,7 +410,9 @@ const DataGridProVirtualScroller = React.forwardRef<
           <VirtualScrollerPinnedColumns
             ref={leftColumns}
             className={classes.leftPinnedColumns}
-            ownerState={{ side: GridPinnedPosition.left }}
+            ownerState={{
+              side: GridPinnedPosition.left,
+            }}
             style={pinnedColumnsStyle}
           >
             {getRows({
@@ -428,7 +431,9 @@ const DataGridProVirtualScroller = React.forwardRef<
         {rightRenderContext && (
           <VirtualScrollerPinnedColumns
             ref={rightColumns}
-            ownerState={{ side: GridPinnedPosition.right }}
+            ownerState={{
+              side: GridPinnedPosition.right,
+            }}
             className={classes.rightPinnedColumns}
             style={pinnedColumnsStyle}
           >

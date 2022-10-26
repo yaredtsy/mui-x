@@ -99,6 +99,7 @@ export const DataGridProColumnHeaders = React.forwardRef<
   DataGridProColumnHeadersProps
 >(function DataGridProColumnHeaders(props, ref) {
   const { style, className, innerRef, ...other } = props;
+
   const rootProps = useGridRootProps();
   const apiRef = useGridApiContext();
   const visibleColumnFields = useGridSelector(apiRef, gridVisibleColumnFieldsSelector);
@@ -165,7 +166,9 @@ export const DataGridProColumnHeaders = React.forwardRef<
       {leftRenderContext && (
         <GridColumnHeadersPinnedColumnHeaders
           className={classes.leftPinnedColumns}
-          ownerState={{ side: GridPinnedPosition.left }}
+          ownerState={{
+            side: GridPinnedPosition.left,
+          }}
           {...pinnedColumnHeadersProps}
         >
           {getColumnGroupHeaders({
@@ -197,7 +200,9 @@ export const DataGridProColumnHeaders = React.forwardRef<
       </GridColumnHeadersInner>
       {rightRenderContext && (
         <GridColumnHeadersPinnedColumnHeaders
-          ownerState={{ side: GridPinnedPosition.right }}
+          ownerState={{
+            side: GridPinnedPosition.right,
+          }}
           className={classes.rightPinnedColumns}
           style={{ paddingRight: scrollbarSize }}
           {...pinnedColumnHeadersProps}
