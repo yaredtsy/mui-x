@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useForkRef } from '@mui/material/utils';
-import { useTheme } from '@mui/system';
+import { useTheme } from '@mui/material/styles';
 import { useGridApiContext } from '../../utils/useGridApiContext';
 import { useGridRootProps } from '../../utils/useGridRootProps';
 import { useGridSelector } from '../../utils/useGridSelector';
@@ -39,7 +39,7 @@ export function binarySearch(
   }
 
   const pivot = sliceStart + Math.floor((sliceEnd - sliceStart) / 2);
-  const itemOffset = Math.abs(positions[pivot]);
+  const itemOffset = positions[pivot];
   return offset <= itemOffset
     ? binarySearch(offset, positions, sliceStart, pivot)
     : binarySearch(offset, positions, pivot + 1, sliceEnd);

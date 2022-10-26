@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useTheme } from '@mui/system';
+import { useTheme } from '@mui/material/styles';
 
 import { GridEventListener } from '../../../models/events';
 import { GridApiCommunity } from '../../../models/api/gridApiCommunity';

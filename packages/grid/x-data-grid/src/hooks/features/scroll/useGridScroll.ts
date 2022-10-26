@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useTheme } from '@mui/system';
+import { useTheme } from '@mui/material/styles';
 import { GridCellIndexCoordinates } from '../../../models/gridCell';
 import { GridApiCommunity } from '../../../models/api/gridApiCommunity';
 import { useGridLogger } from '../../utils/useGridLogger';
