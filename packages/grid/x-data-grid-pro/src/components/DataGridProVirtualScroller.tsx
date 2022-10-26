@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { styled, alpha, Theme } from '@mui/material/styles';
-import { useTheme } from '@mui/system';
 import { unstable_composeClasses as composeClasses } from '@mui/material';
 import {
   useGridSelector,
@@ -184,7 +183,6 @@ const DataGridProVirtualScroller = React.forwardRef<
 >(function DataGridProVirtualScroller(props, ref) {
   const { className, disableVirtualization, ...other } = props;
 
-  const theme = useTheme();
   const apiRef = useGridApiContext();
   const rootProps = useGridRootProps();
   const visibleColumnFields = useGridSelector(apiRef, gridVisibleColumnFieldsSelector);
@@ -411,11 +409,9 @@ const DataGridProVirtualScroller = React.forwardRef<
         {leftRenderContext && (
           <VirtualScrollerPinnedColumns
             ref={leftColumns}
-            className={
-              theme.direction === 'ltr' ? classes.leftPinnedColumns : classes.rightPinnedColumns
-            }
+            className={classes.leftPinnedColumns}
             ownerState={{
-              side: theme.direction === 'ltr' ? GridPinnedPosition.left : GridPinnedPosition.right,
+              side: GridPinnedPosition.left,
             }}
             style={pinnedColumnsStyle}
           >
@@ -436,11 +432,9 @@ const DataGridProVirtualScroller = React.forwardRef<
           <VirtualScrollerPinnedColumns
             ref={rightColumns}
             ownerState={{
-              side: theme.direction === 'ltr' ? GridPinnedPosition.right : GridPinnedPosition.left,
+              side: GridPinnedPosition.right,
             }}
-            className={
-              theme.direction === 'ltr' ? classes.rightPinnedColumns : classes.leftPinnedColumns
-            }
+            className={classes.rightPinnedColumns}
             style={pinnedColumnsStyle}
           >
             {getRows({

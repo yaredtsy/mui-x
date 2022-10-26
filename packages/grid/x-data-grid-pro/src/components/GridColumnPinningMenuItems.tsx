@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import MenuItem from '@mui/material/MenuItem';
+import { useTheme } from '@mui/material/styles';
 import { GridColDef } from '@mui/x-data-grid';
 import { GridPinnedPosition } from '../hooks/features/columnPinning';
 import { useGridApiContext } from '../hooks/utils/useGridApiContext';
@@ -13,6 +14,7 @@ interface GridColumnPinningMenuItemsProps {
 const GridColumnPinningMenuItems = (props: GridColumnPinningMenuItemsProps) => {
   const { column, onClick } = props;
   const apiRef = useGridApiContext();
+  const theme = useTheme();
 
   const pinColumn = (side: GridPinnedPosition) => (event: React.MouseEvent<HTMLElement>) => {
     apiRef.current.pinColumn(column!.field, side);
@@ -40,10 +42,15 @@ const GridColumnPinningMenuItems = (props: GridColumnPinningMenuItemsProps) => {
     const otherSide =
       side === GridPinnedPosition.right ? GridPinnedPosition.left : GridPinnedPosition.right;
     const label = otherSide === GridPinnedPosition.right ? 'pinToRight' : 'pinToLeft';
+    const rtlLabel = side === GridPinnedPosition.right ? 'pinToRight' : 'pinToLeft';
 
     return (
       <React.Fragment>
-        <MenuItem onClick={pinColumn(otherSide)}>{apiRef.current.getLocaleText(label)}</MenuItem>
+        <MenuItem onClick={pinColumn(otherSide)}>
+          {theme.direction === 'rtl'
+            ? apiRef.current.getLocaleText(rtlLabel)
+            : apiRef.current.getLocaleText(label)}
+        </MenuItem>
         <MenuItem onClick={unpinColumn}>{apiRef.current.getLocaleText('unpin')}</MenuItem>
       </React.Fragment>
     );
@@ -51,10 +58,22 @@ const GridColumnPinningMenuItems = (props: GridColumnPinningMenuItemsProps) => {
 
   return (
     <React.Fragment>
-      <MenuItem onClick={pinColumn(GridPinnedPosition.left)}>
+      <MenuItem
+        onClick={
+          theme.direction === 'rtl'
+            ? pinColumn(GridPinnedPosition.right)
+            : pinColumn(GridPinnedPosition.left)
+        }
+      >
         {apiRef.current.getLocaleText('pinToLeft')}
       </MenuItem>
-      <MenuItem onClick={pinColumn(GridPinnedPosition.right)}>
+      <MenuItem
+        onClick={
+          theme.direction === 'rtl'
+            ? pinColumn(GridPinnedPosition.left)
+            : pinColumn(GridPinnedPosition.right)
+        }
+      >
         {apiRef.current.getLocaleText('pinToRight')}
       </MenuItem>
     </React.Fragment>

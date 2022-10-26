@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { unstable_composeClasses as composeClasses } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
-import { useTheme } from '@mui/system';
 import { useEventCallback } from '@mui/material/utils';
 import {
   getDataGridUtilityClass,
@@ -101,7 +100,6 @@ export const DataGridProColumnHeaders = React.forwardRef<
 >(function DataGridProColumnHeaders(props, ref) {
   const { style, className, innerRef, ...other } = props;
 
-  const theme = useTheme();
   const rootProps = useGridRootProps();
   const apiRef = useGridApiContext();
   const visibleColumnFields = useGridSelector(apiRef, gridVisibleColumnFieldsSelector);
@@ -167,11 +165,9 @@ export const DataGridProColumnHeaders = React.forwardRef<
     <GridColumnHeaders ref={ref} className={className} {...getRootProps(other)}>
       {leftRenderContext && (
         <GridColumnHeadersPinnedColumnHeaders
-          className={
-            theme.direction === 'ltr' ? classes.leftPinnedColumns : classes.rightPinnedColumns
-          }
+          className={classes.leftPinnedColumns}
           ownerState={{
-            side: theme.direction === 'ltr' ? GridPinnedPosition.left : GridPinnedPosition.right,
+            side: GridPinnedPosition.left,
           }}
           {...pinnedColumnHeadersProps}
         >
@@ -205,11 +201,9 @@ export const DataGridProColumnHeaders = React.forwardRef<
       {rightRenderContext && (
         <GridColumnHeadersPinnedColumnHeaders
           ownerState={{
-            side: theme.direction === 'ltr' ? GridPinnedPosition.right : GridPinnedPosition.left,
+            side: GridPinnedPosition.right,
           }}
-          className={
-            theme.direction === 'ltr' ? classes.leftPinnedColumns : classes.rightPinnedColumns
-          }
+          className={classes.rightPinnedColumns}
           style={{ paddingRight: scrollbarSize }}
           {...pinnedColumnHeadersProps}
         >
