@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useTheme } from '@mui/material/styles';
-
 import { GridEventListener } from '../../../models/events';
 import { GridApiCommunity } from '../../../models/api/gridApiCommunity';
 import { GridCellParams } from '../../../models/params/gridCellParams';
@@ -97,6 +96,42 @@ export const useGridKeyboardNavigation = (
     [currentPageRows],
   );
 
+  const goToRightCell = React.useCallback(
+    (colIndexBefore: number, lastColIndex: number, rowIndexBefore: number) => {
+      if (colIndexBefore < lastColIndex) {
+        goToCell(colIndexBefore + 1, getRowIdFromIndex(rowIndexBefore), 'right');
+      }
+    },
+    [goToCell, getRowIdFromIndex],
+  );
+
+  const goToLeftCell = React.useCallback(
+    (colIndexBefore: number, firstColIndex: number, rowIndexBefore: number) => {
+      if (colIndexBefore > firstColIndex) {
+        goToCell(colIndexBefore - 1, getRowIdFromIndex(rowIndexBefore), 'right');
+      }
+    },
+    [goToCell, getRowIdFromIndex],
+  );
+
+  const goToRightColumnHeader = React.useCallback(
+    (colIndexBefore: number, lastColIndex: number, event: React.KeyboardEvent<HTMLElement>) => {
+      if (colIndexBefore < lastColIndex) {
+        goToHeader(colIndexBefore + 1, event);
+      }
+    },
+    [goToHeader],
+  );
+
+  const goToLeftColumnHeader = React.useCallback(
+    (colIndexBefore: number, firstColIndex: number, event: React.KeyboardEvent<HTMLElement>) => {
+      if (colIndexBefore > firstColIndex) {
+        goToHeader(colIndexBefore - 1, event);
+      }
+    },
+    [goToHeader],
+  );
+
   const handleCellNavigationKeyDown = React.useCallback<GridEventListener<'cellNavigationKeyDown'>>(
     (params, event) => {
       const dimensions = apiRef.current.getRootDimensions();
@@ -139,26 +174,18 @@ export const useGridKeyboardNavigation = (
 
         case 'ArrowRight': {
           if (direction === 'ltr') {
-            if (colIndexBefore < lastColIndex) {
-              goToCell(colIndexBefore + 1, getRowIdFromIndex(rowIndexBefore), 'right');
-            }
+            goToRightCell(colIndexBefore, lastColIndex, rowIndexBefore);
           } else if (direction === 'rtl') {
-            if (colIndexBefore > firstColIndex) {
-              goToCell(colIndexBefore - 1, getRowIdFromIndex(rowIndexBefore), 'right');
-            }
+            goToLeftCell(colIndexBefore, firstColIndex, rowIndexBefore);
           }
           break;
         }
 
         case 'ArrowLeft': {
           if (direction === 'ltr') {
-            if (colIndexBefore > firstColIndex) {
-              goToCell(colIndexBefore - 1, getRowIdFromIndex(rowIndexBefore));
-            }
+            goToLeftCell(colIndexBefore, firstColIndex, rowIndexBefore);
           } else if (direction === 'rtl') {
-            if (colIndexBefore < lastColIndex) {
-              goToCell(colIndexBefore + 1, getRowIdFromIndex(rowIndexBefore));
-            }
+            goToRightCell(colIndexBefore, lastColIndex, rowIndexBefore);
           }
           break;
         }
@@ -239,7 +266,16 @@ export const useGridKeyboardNavigation = (
         event.preventDefault();
       }
     },
-    [apiRef, currentPageRows, goToCell, goToHeader, getRowIdFromIndex, theme.direction],
+    [
+      apiRef,
+      currentPageRows,
+      theme.direction,
+      goToCell,
+      goToHeader,
+      getRowIdFromIndex,
+      goToLeftCell,
+      goToRightCell,
+    ],
   );
 
   const handleColumnHeaderKeyDown = React.useCallback<GridEventListener<'columnHeaderKeyDown'>>(
@@ -278,15 +314,19 @@ export const useGridKeyboardNavigation = (
         }
 
         case 'ArrowRight': {
-          if (colIndexBefore < lastColIndex) {
-            goToHeader(colIndexBefore + 1, event);
+          if (theme.direction === 'ltr') {
+            goToRightColumnHeader(colIndexBefore, lastColIndex, event);
+          } else if (theme.direction === 'rtl') {
+            goToLeftColumnHeader(colIndexBefore, firstColIndex, event);
           }
           break;
         }
 
         case 'ArrowLeft': {
-          if (colIndexBefore > firstColIndex) {
-            goToHeader(colIndexBefore - 1, event);
+          if (theme.direction === 'ltr') {
+            goToLeftColumnHeader(colIndexBefore, firstColIndex, event);
+          } else if (theme.direction === 'rtl') {
+            goToRightColumnHeader(colIndexBefore, lastColIndex, event);
           }
           break;
         }
@@ -334,7 +374,16 @@ export const useGridKeyboardNavigation = (
         event.preventDefault();
       }
     },
-    [apiRef, currentPageRows, goToCell, goToHeader, getRowIdFromIndex],
+    [
+      apiRef,
+      currentPageRows,
+      theme.direction,
+      goToCell,
+      goToHeader,
+      getRowIdFromIndex,
+      goToRightColumnHeader,
+      goToLeftColumnHeader,
+    ],
   );
 
   const handleCellKeyDown = React.useCallback<GridEventListener<'cellKeyDown'>>(
