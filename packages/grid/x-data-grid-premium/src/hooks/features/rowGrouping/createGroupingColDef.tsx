@@ -133,7 +133,7 @@ const getGroupingCriteriaProperties = (
 
   return properties;
 };
-
+let index = 0;
 interface CreateGroupingColDefMonoCriteriaParams {
   columnsLookup: GridColumnRawLookup;
   /**
@@ -303,6 +303,19 @@ export const createGroupingColDefForAllGroupingCriteria = ({
     renderCell: (params) => {
       // Render footer
       if (params.rowNode.type === 'footer' || params.rowNode.type === 'pinnedRow') {
+        apiRef.current.subscribeEvent('cellClick', (cell) => {
+          if (cell.id === params.id) {
+            const rowNode = apiRef.current.getVisibleRowModels();
+            rowNode.forEach((_, key) => {
+              if (key.toString().startsWith('auto-generated-row')) {
+                if (key.toString().includes(params.value)) {
+                  const inde = apiRef.current.getRowIndexRelativeToVisibleRows(key);
+                  apiRef.current.scrollToIndexes({ rowIndex: inde });
+                }
+              }
+            });
+          }
+        });
         return <GridGroupingColumnFooterCell {...params} />;
       }
 
@@ -337,7 +350,17 @@ export const createGroupingColDefForAllGroupingCriteria = ({
         params.rowNode.type === 'footer' ||
         params.rowNode.type === 'pinnedRow'
       ) {
-        return undefined;
+        apiRef.current.subscribeEvent('rowExpansionChange', (row) => {
+          if (row.groupingField && row.groupingKey === params.row[row.groupingField]) {
+            if (row.childrenExpanded) {
+              index = rowGroupingModel.length > index ? row.depth + 1 : index;
+            } else {
+              index = row.depth;
+            }
+          }
+        });
+
+        return params.row[rowGroupingModel[index]];
       }
 
       if (params.rowNode.type === 'leaf') {
