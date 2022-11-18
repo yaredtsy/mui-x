@@ -351,7 +351,7 @@ export const createGroupingColDefForAllGroupingCriteria = ({
         params.rowNode.type === 'pinnedRow'
       ) {
         apiRef.current.subscribeEvent('rowExpansionChange', (row) => {
-          if (row.groupingField && row.groupingKey === params.row[row.groupingField]) {
+          if (row.groupingField && row.groupingKey === params.value) {
             if (row.childrenExpanded) {
               index = rowGroupingModel.length > index ? row.depth + 1 : index;
             } else {
