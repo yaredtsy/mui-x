@@ -40,6 +40,7 @@ export interface GridCellProps<V = any, F = V> {
   tabIndex: 0 | -1;
   colSpan?: number;
   disableDragEvents?: boolean;
+  isNotInRow?: boolean;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   onDoubleClick?: React.MouseEventHandler<HTMLDivElement>;
   onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
@@ -108,6 +109,7 @@ function GridCell(props: GridCellProps) {
     row,
     colSpan,
     disableDragEvents,
+    isNotInRow,
     onClick,
     onDoubleClick,
     onMouseDown,
@@ -201,6 +203,20 @@ function GridCell(props: GridCellProps) {
       }
     }
   }, [hasFocus, cellMode, apiRef]);
+
+  React.useEffect(() => {
+    const current = apiRef.current;
+
+    return () => {
+      if (isNotInRow) {
+        return;
+      }
+      const rowNode = current.getRowNode(rowId);
+      if (hasFocus && rowNode && rowNode.type !== 'pinnedRow') {
+        current.publishEvent('cellFocusUnmount', <GridCell {...props} isNotInRow />);
+      }
+    };
+  }, [hasFocus, props, apiRef, rowId, isNotInRow]);
 
   let handleFocus: any = other.onFocus;
 
@@ -296,6 +312,7 @@ GridCell.propTypes = {
   hasFocus: PropTypes.bool,
   height: PropTypes.oneOfType([PropTypes.oneOf(['auto']), PropTypes.number]).isRequired,
   isEditable: PropTypes.bool,
+  isNotInRow: PropTypes.bool,
   onClick: PropTypes.func,
   onDoubleClick: PropTypes.func,
   onDragEnter: PropTypes.func,
