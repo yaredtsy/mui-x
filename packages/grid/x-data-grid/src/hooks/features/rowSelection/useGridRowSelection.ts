@@ -403,7 +403,7 @@ export const useGridRowSelection = (
       if (field) {
         const column = apiRef.current.getColumn(field);
 
-        if (column === null || column.type === GRID_ACTIONS_COLUMN_TYPE) {
+        if (!column || column.type === GRID_ACTIONS_COLUMN_TYPE) {
           return;
         }
       }

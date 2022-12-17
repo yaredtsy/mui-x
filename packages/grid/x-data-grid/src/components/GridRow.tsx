@@ -265,7 +265,7 @@ const GridRow = React.forwardRef<
 
         // User clicked a button from the "actions" column type
         const column = apiRef.current.getColumn(field);
-        if (column === null || column.type === GRID_ACTIONS_COLUMN_TYPE) {
+        if (!column || column.type === GRID_ACTIONS_COLUMN_TYPE) {
           return;
         }
       }
