@@ -373,15 +373,13 @@ export const useGridRowSelection = (
       }
 
       let depth = 0;
-      let path = '';
+
       let current: HTMLElement | null | undefined = apiRef.current.rootElementRef?.current;
       while (current?.parentElement != null) {
         if (current?.parentElement?.classList.contains(gridClasses.root)) {
           depth += 1;
         }
-        if (current?.parentElement?.classList.length > 0) {
-          path += ` .${current!.parentElement.classList[0]}`;
-        }
+
         current = current?.parentElement;
       }
 
@@ -389,7 +387,6 @@ export const useGridRowSelection = (
         event.target as HTMLDivElement,
         gridClasses.cell,
         depth,
-        path,
       );
       const field = cell?.getAttribute('data-field');
 
@@ -406,7 +403,7 @@ export const useGridRowSelection = (
       if (field) {
         const column = apiRef.current.getColumn(field);
 
-        if (column.type === GRID_ACTIONS_COLUMN_TYPE) {
+        if (column === null || column.type === GRID_ACTIONS_COLUMN_TYPE) {
           return;
         }
       }
