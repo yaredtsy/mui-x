@@ -335,9 +335,19 @@ export const useGridColumnResize = (
   });
 
   const handleTouchStart = useEventCallback((event: any) => {
+    let depth = 0;
+
+    let current: HTMLElement | null | undefined = apiRef.current.rootElementRef?.current;
+    while (current?.parentElement != null) {
+      if (current?.parentElement?.classList.contains(gridClasses.root)) {
+        depth += 1;
+      }
+      current = current?.parentElement;
+    }
     const cellSeparator = findParentElementFromClassName(
       event.target,
       gridClasses['columnSeparator--resizable'],
+      depth,
     );
     // Let the event bubble if the target is not a col separator
     if (!cellSeparator) {
@@ -357,6 +367,7 @@ export const useGridColumnResize = (
     colElementRef.current = findParentElementFromClassName(
       event.target,
       gridClasses.columnHeader,
+      depth,
     ) as HTMLDivElement;
     const field = getFieldFromHeaderElem(colElementRef.current!);
     const colDef = apiRef.current.getColumn(field);
