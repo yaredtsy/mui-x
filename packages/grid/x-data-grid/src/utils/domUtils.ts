@@ -9,13 +9,16 @@ export function findParentElementFromClassName(
   elem: Element,
   className: string,
   depth?: number,
+  path?: string,
 ): Element | null {
   depth = depth ?? 0;
+  path = path ?? '';
+
   let rootClass = `.${gridClasses.root} .${gridClasses.root}`;
   for (let i = 0; i < depth; i += 1) {
     rootClass += ` .${gridClasses.root}`;
   }
-  return elem.closest(`.${className}:not( ${rootClass} .${className})`);
+  return elem.closest(`${path} .${className}:not( ${rootClass} .${className})`);
 }
 
 export function getRowEl(depth: number, cell?: Element | null): HTMLElement | null {
@@ -74,8 +77,7 @@ export function getGridCellElement(root: Element, { id, field }: { id: GridRowId
   for (let i = 0; i < depth; i += 1) {
     parent += ` .${gridClasses.root}`;
   }
-  // console.log(root.querySelectorAll(`${gridClasses.root}`));
-  // console.log(root.querySelectorAll(`${rowSelector} .MuiDataGrid-root`));
+
   return root.querySelector<HTMLDivElement>(
     `${parent} ${selector}:not(${parent}  .${gridClasses.root} ${selector})`,
   );
