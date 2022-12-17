@@ -10,6 +10,7 @@ import { GridRowId } from '../../../models/gridRows';
 import { GridSignature, useGridApiEventHandler } from '../../utils/useGridApiEventHandler';
 import { useGridApiMethod } from '../../utils/useGridApiMethod';
 import { useGridLogger } from '../../utils/useGridLogger';
+import { findParentElementFromClassName } from '../../../utils/domUtils';
 import { gridRowsLookupSelector } from '../rows/gridRowsSelector';
 import {
   gridRowSelectionStateSelector,
@@ -371,9 +372,22 @@ export const useGridRowSelection = (
         return;
       }
 
-      const field = (event.target as HTMLDivElement)
-        .closest(`.${gridClasses.cell}`)
-        ?.getAttribute('data-field');
+      let depth = 0;
+
+      let current: HTMLElement | null | undefined = apiRef.current.rootElementRef?.current;
+      while (current?.parentElement != null) {
+        if (current?.parentElement?.classList.contains(gridClasses.root)) {
+          depth += 1;
+        }
+        current = current?.parentElement;
+      }
+
+      const cell = findParentElementFromClassName(
+        event.target as HTMLDivElement,
+        gridClasses.cell,
+        depth,
+      );
+      const field = cell?.getAttribute('data-field');
 
       if (field === GRID_CHECKBOX_SELECTION_COL_DEF.field) {
         // click on checkbox should not trigger row selection

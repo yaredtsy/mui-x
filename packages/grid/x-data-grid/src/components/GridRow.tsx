@@ -222,7 +222,22 @@ const GridRow = React.forwardRef<
 
   const publishClick = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      const cell = findParentElementFromClassName(event.target as HTMLDivElement, gridClasses.cell);
+      let depth = 0;
+
+      let current: HTMLElement | null | undefined = apiRef.current.rootElementRef?.current;
+      while (current?.parentElement != null) {
+        if (current?.parentElement?.classList.contains(gridClasses.root)) {
+          depth += 1;
+        }
+        current = current?.parentElement;
+      }
+
+      const cell = findParentElementFromClassName(
+        event.target as HTMLDivElement,
+        gridClasses.cell,
+        depth,
+      );
+
       const field = cell?.getAttribute('data-field');
 
       // Check if the field is available because the cell that fills the empty
