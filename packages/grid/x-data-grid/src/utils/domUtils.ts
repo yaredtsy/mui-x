@@ -8,8 +8,9 @@ export function isOverflown(element: Element): boolean {
 export function findParentElementFromClassName(
   elem: Element,
   className: string,
-  depth: number,
+  depth?: number,
 ): Element | null {
+  depth = depth ?? 0;
   let rootClass = `.${gridClasses.root} .${gridClasses.root}`;
   for (let i = 0; i < depth; i += 1) {
     rootClass += ` .${gridClasses.root}`;
