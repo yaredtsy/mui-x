@@ -1,6 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { SxProps, Theme } from '@mui/material/styles';
+import { SxProps, Theme, styled } from '@mui/material/styles';
+
+import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
+import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
+import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary';
+import MuiAccordionDetails from '@mui/material/AccordionDetails';
+import Typography from '@mui/material/Typography';
+
 import { GridFilterItem, GridLinkOperator } from '../../../models/gridFilterItem';
 import { useGridApiContext } from '../../../hooks/utils/useGridApiContext';
 import { GridAddIcon } from '../../icons';
@@ -18,6 +25,39 @@ export interface GetColumnForNewFilterArgs {
   currentFilters: GridFilterItem[];
   columns: GridStateColDef[];
 }
+const Accordion = styled((props: AccordionProps) => (
+  <MuiAccordion disableGutters elevation={0} square {...props} />
+))(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  '&:not(:last-child)': {
+    borderBottom: 0,
+  },
+  '&:before': {
+    display: 'none',
+  },
+}));
+
+const AccordionSummary = styled((props: AccordionSummaryProps) => (
+  <MuiAccordionSummary
+    expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} />}
+    {...props}
+  />
+))(({ theme }) => ({
+  backgroundColor: 'white',
+  flexDirection: 'row-reverse',
+  '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
+    transform: 'rotate(90deg)',
+  },
+  '& .MuiAccordionSummary-content': {
+    marginLeft: theme.spacing(1),
+  },
+}));
+
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+  padding: theme.spacing(2),
+  borderTop: '1px solid rgba(0, 0, 0, .125)',
+  backgroundColor: '#f5f6f8',
+}));
 
 export interface GridFilterPanelProps
   extends Pick<GridFilterFormProps, 'linkOperators' | 'columnsSort'> {
@@ -63,6 +103,8 @@ const GridFilterPanel = React.forwardRef<HTMLDivElement, GridFilterPanelProps>(
     const filterModel = useGridSelector(apiRef, gridFilterModelSelector);
     const filterableColumns = useGridSelector(apiRef, gridFilterableColumnDefinitionsSelector);
     const lastFilterRef = React.useRef<any>(null);
+
+    const [expanded, setExpanded] = React.useState<string | false>('panel-0');
 
     const {
       linkOperators = [GridLinkOperator.And, GridLinkOperator.Or],
@@ -164,6 +206,9 @@ const GridFilterPanel = React.forwardRef<HTMLDivElement, GridFilterPanelProps>(
       },
       [apiRef, items.length],
     );
+    const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+      setExpanded(newExpanded ? panel : false);
+    };
 
     React.useEffect(() => {
       if (
@@ -183,25 +228,36 @@ const GridFilterPanel = React.forwardRef<HTMLDivElement, GridFilterPanelProps>(
 
     return (
       <GridPanelWrapper ref={ref} {...other}>
-        <GridPanelContent>
+        <GridPanelContent sx={{ background: '#f5f5f5' }}>
           {items.map((item, index) => (
-            <GridFilterForm
-              key={item.id == null ? index : item.id}
-              item={item}
-              applyFilterChanges={applyFilter}
-              deleteFilter={deleteFilter}
-              hasMultipleFilters={hasMultipleFilters}
-              showMultiFilterOperators={index > 0}
-              multiFilterOperator={filterModel.linkOperator}
-              disableMultiFilterOperator={index !== 1}
-              applyMultiFilterOperatorChanges={applyFilterLinkOperator}
-              focusElementRef={index === items.length - 1 ? lastFilterRef : null}
-              linkOperators={linkOperators}
-              columnsSort={columnsSort}
-              {...filterFormProps}
-            />
+            <Accordion
+              expanded={expanded === `panel-${index.toString()}`}
+              onChange={handleChange(`panel-${index.toString()}`)}
+            >
+              <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
+                <Typography>{filterModel.items[index]?.columnField}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <GridFilterForm
+                  key={item.id == null ? index : item.id}
+                  item={item}
+                  applyFilterChanges={applyFilter}
+                  deleteFilter={deleteFilter}
+                  hasMultipleFilters={hasMultipleFilters}
+                  showMultiFilterOperators={index > 0}
+                  multiFilterOperator={filterModel.linkOperator}
+                  disableMultiFilterOperator={index !== 1}
+                  applyMultiFilterOperatorChanges={applyFilterLinkOperator}
+                  focusElementRef={index === items.length - 1 ? lastFilterRef : null}
+                  linkOperators={linkOperators}
+                  columnsSort={columnsSort}
+                  {...filterFormProps}
+                />
+              </AccordionDetails>
+            </Accordion>
           ))}
         </GridPanelContent>
+
         {!rootProps.disableMultipleColumnsFiltering && (
           <GridPanelFooter>
             <rootProps.components.BaseButton
