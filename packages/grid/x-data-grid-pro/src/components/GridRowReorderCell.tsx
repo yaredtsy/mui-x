@@ -31,6 +31,7 @@ const useUtilityClasses = (ownerState: OwnerState) => {
 
 function GridRowReorderCell(params: GridRenderCellParams) {
   const apiRef = useGridApiContext();
+  const ref = React.useRef<HTMLDivElement>(null);
   const rootProps = useGridRootProps();
   const sortModel = useGridSelector(apiRef, gridSortModelSelector);
   const treeDepth = useGridSelector(apiRef, gridRowMaximumTreeDepthSelector);
@@ -81,9 +82,19 @@ function GridRowReorderCell(params: GridRenderCellParams) {
     [apiRef, params.id],
   );
 
+  const dragEnd = (event: React.MouseEvent<HTMLDivElement> | any) => {
+    event.currentTarget.removeEventListener('dragend', dragEnd);
+    publish('rowDragEnd')(event);
+  };
+
   const draggableEventHandlers = isDraggable
     ? {
-        onDragStart: publish('rowDragStart'),
+        onDragStart: (event: React.MouseEvent<HTMLDivElement>) => {
+          // IF virtualization is enabled
+
+          ref.current?.addEventListener('dragend', dragEnd);
+          publish('rowDragStart')(event);
+        },
         onDragOver: publish('rowDragOver'),
         onDragEnd: publish('rowDragEnd'),
       }
@@ -94,7 +105,7 @@ function GridRowReorderCell(params: GridRenderCellParams) {
   }
 
   return (
-    <div className={classes.root} draggable={isDraggable} {...draggableEventHandlers}>
+    <div ref={ref} className={classes.root} draggable={isDraggable} {...draggableEventHandlers}>
       <rootProps.components.RowReorderIcon />
       <div className={classes.placeholder}>{cellValue}</div>
     </div>
