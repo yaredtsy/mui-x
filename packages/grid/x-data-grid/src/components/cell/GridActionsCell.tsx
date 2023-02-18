@@ -24,7 +24,7 @@ interface GridActionsCellProps
   position?: GridMenuProps['position'];
 }
 
-function GridActionsCell(props: GridActionsCellProps) {
+function GridActionsCellPure(props: GridActionsCellProps) {
   const {
     colDef,
     id,
@@ -238,7 +238,7 @@ function GridActionsCell(props: GridActionsCellProps) {
   );
 }
 
-GridActionsCell.propTypes = {
+GridActionsCellPure.propTypes = {
   // ----------------------------- Warning --------------------------------
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "yarn proptypes"  |
@@ -309,7 +309,9 @@ GridActionsCell.propTypes = {
   tabIndex: PropTypes.oneOf([-1, 0]).isRequired,
   value: PropTypes.any,
 } as any;
-
+const GridActionsCell = React.memo(GridActionsCellPure);
 export { GridActionsCell };
 
-export const renderActionsCell = (params: GridRenderCellParams) => <GridActionsCell {...params} />;
+export const renderActionsCell = React.memo((params: GridRenderCellParams) => (
+  <GridActionsCell {...params} />
+));
