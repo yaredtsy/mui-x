@@ -36,27 +36,33 @@ const GridColumnHeaders = React.forwardRef<HTMLDivElement, GridColumnHeadersProp
       ...other
     } = props;
 
-    const { isDragging, getRootProps, getInnerProps, getColumnHeaders, getColumnGroupHeaders } =
-      useGridColumnHeaders({
-        innerRef,
-        visibleColumns,
-        sortColumnLookup,
-        filterColumnLookup,
-        columnPositions,
-        columnHeaderTabIndexState,
-        columnGroupHeaderTabIndexState,
-        columnHeaderFocus,
-        columnGroupHeaderFocus,
-        densityFactor,
-        headerGroupingMaxDepth,
-        columnMenuState,
-        columnVisibility,
-        columnGroupsHeaderStructure,
-        hasOtherElementInTabSequence,
-      });
+    const {
+      isDragging,
+      getRootProps,
+      getInnerProps,
+      getColumnHeaders,
+      getColumnGroupHeaders,
+      OnColumnScroll,
+    } = useGridColumnHeaders({
+      innerRef,
+      visibleColumns,
+      sortColumnLookup,
+      filterColumnLookup,
+      columnPositions,
+      columnHeaderTabIndexState,
+      columnGroupHeaderTabIndexState,
+      columnHeaderFocus,
+      columnGroupHeaderFocus,
+      densityFactor,
+      headerGroupingMaxDepth,
+      columnMenuState,
+      columnVisibility,
+      columnGroupsHeaderStructure,
+      hasOtherElementInTabSequence,
+    });
 
     return (
-      <GridBaseColumnHeaders ref={ref} {...getRootProps(other)}>
+      <GridBaseColumnHeaders ref={ref} {...getRootProps(other)} onWheel={OnColumnScroll}>
         <GridScrollArea scrollDirection="left" />
         <GridColumnHeadersInner isDragging={isDragging} {...getInnerProps()}>
           {getColumnGroupHeaders()}

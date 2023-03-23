@@ -177,6 +177,7 @@ const GridColumnHeaders = React.forwardRef<HTMLDivElement, DataGridProColumnHead
       getInnerProps,
       getColumnHeaders,
       getColumnGroupHeaders,
+      OnColumnScroll,
     } = useGridColumnHeaders({
       innerRef,
       visibleColumns,
@@ -229,7 +230,12 @@ const GridColumnHeaders = React.forwardRef<HTMLDivElement, DataGridProColumnHead
     };
 
     return (
-      <GridBaseColumnHeaders ref={ref} className={className} {...getRootProps(other)}>
+      <GridBaseColumnHeaders
+        ref={ref}
+        className={className}
+        {...getRootProps(other)}
+        onWheel={OnColumnScroll}
+      >
         {leftRenderContext && (
           <GridColumnHeadersPinnedColumnHeaders
             className={classes.leftPinnedColumns}

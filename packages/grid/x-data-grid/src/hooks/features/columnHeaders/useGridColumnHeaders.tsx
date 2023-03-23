@@ -160,6 +160,21 @@ export const useGridColumnHeaders = (props: UseGridColumnHeadersProps) => {
     ],
   );
 
+  React.useEffect(() => {
+    const cancelWheel = (event: WheelEvent) => {
+      console.log((innerRef.current as HTMLElement).scrollLeft);
+      if ((event.target as HTMLElement).offsetLeft >= 0) {
+        event.preventDefault();
+      }
+    };
+
+    innerRef.current?.addEventListener('wheel', cancelWheel, { passive: false });
+
+    return () => {
+      innerRef.current?.removeEventListener('wheel', cancelWheel);
+    };
+  }, []);
+
   React.useLayoutEffect(() => {
     if (renderContext) {
       updateInnerPosition(renderContext);
@@ -284,6 +299,21 @@ export const useGridColumnHeaders = (props: UseGridColumnHeadersProps) => {
       maxLastColumn,
     };
   };
+
+  const OnColumnScroll = React.useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      const deltaX = event.deltaX;
+      const virtualScroller = apiRef.current.virtualScrollerRef?.current;
+      if (!virtualScroller) {
+        return;
+      }
+
+      if (deltaX !== 0) {
+        virtualScroller.scrollLeft += deltaX;
+      }
+    },
+    [apiRef],
+  );
 
   const getColumnHeaders = (params?: GetHeadersParams, other = {}) => {
     const columnsToRender = getColumnsToRender(params);
@@ -470,6 +500,7 @@ export const useGridColumnHeaders = (props: UseGridColumnHeadersProps) => {
   return {
     renderContext,
     getColumnHeaders,
+    OnColumnScroll,
     getColumnGroupHeaders,
     isDragging: !!dragCol,
     getRootProps: (other = {}) => ({ style: rootStyle, ...other }),
