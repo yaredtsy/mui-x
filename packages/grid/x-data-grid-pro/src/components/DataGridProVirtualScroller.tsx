@@ -442,6 +442,7 @@ const DataGridProVirtualScroller = React.forwardRef<
         </VirtualScrollerPinnedRows>
       ) : null}
       <GridVirtualScrollerContent {...contentProps}>
+        <GridOverlays />
         {leftRenderContext && (
           <VirtualScrollerPinnedColumns
             ref={leftColumns}
@@ -464,7 +465,6 @@ const DataGridProVirtualScroller = React.forwardRef<
           </VirtualScrollerPinnedColumns>
         )}
         <GridVirtualScrollerRenderZone {...getRenderZoneProps()}>
-          <GridOverlays />
           {mainRows}
         </GridVirtualScrollerRenderZone>
         {rightRenderContext && (
