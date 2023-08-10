@@ -26,7 +26,7 @@ const GridOverlayWrapperRoot = styled('div', {
   top: 0,
   left: 0,
   width: 0, // To stay above the content instead of shifting it down
-  height: 0, // To stay above the content instead of shifting it down
+  height: '100%', // To stay above the content instead of shifting it down
   zIndex: 4, // Should be above pinned columns, pinned rows and detail panel
 });
 
@@ -34,7 +34,9 @@ const GridOverlayWrapperInner = styled('div', {
   name: 'MuiDataGrid',
   slot: 'OverlayWrapperInner',
   overridesResolver: (props, styles) => styles.overlayWrapperInner,
-})({});
+})({
+  height: '100%',
+});
 
 type OwnerState = { classes: DataGridProcessedProps['classes'] };
 
@@ -81,7 +83,6 @@ function GridOverlayWrapper(props: React.PropsWithChildren<{}>) {
       <GridOverlayWrapperInner
         className={clsx(classes.inner)}
         style={{
-          height,
           width: viewportInnerSize?.width ?? 0,
         }}
         {...props}
