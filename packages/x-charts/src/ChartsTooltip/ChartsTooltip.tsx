@@ -132,14 +132,16 @@ function ChartsTooltip(props: ChartsTooltipProps) {
 
         console.log(axisValue);
         console.log(relevantSeries);
-        const value = relevantSeries.map(
-          ({ color, id, label, valueFormatter, data }: ChartSeriesDefaultized<any>) => ({
-            color,
-            label,
-            value: valueFormatter(data[dataIndex]),
-          }),
-        );
-        console.log(value);
+        if (dataIndex != null) {
+          const value = relevantSeries.map(
+            ({ color, id, label, valueFormatter, data }: ChartSeriesDefaultized<any>) => ({
+              color,
+              label,
+              value: valueFormatter(data[dataIndex]),
+            }),
+          );
+          console.log(value);
+        }
       }
     };
     const element = svgRef.current;
