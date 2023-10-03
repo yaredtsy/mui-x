@@ -13,12 +13,13 @@ function ChartsClipPath(props: ChartsClipPathProps) {
 
   const offset = { top: 0, right: 0, bottom: 0, left: 0, ...offsetProps };
   return (
-    <clipPath id={id}>
+    <clipPath id={id} onClick={(e) => console.log('clipped')}>
       <rect
         x={left - offset.left}
         y={top - offset.top}
         width={width + offset.left + offset.right}
         height={height + offset.top + offset.bottom}
+        onClick={(e) => console.log('clipped')}
       />
     </clipPath>
   );
