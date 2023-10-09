@@ -311,7 +311,7 @@ export const createGroupingColDefForAllGroupingCriteria = ({
         params.rowNode.type === 'footer' ||
         params.rowNode.type === 'pinnedRow'
       ) {
-        return undefined;
+        return params.row[rowGroupingModel[0]];
       }
 
       if (params.rowNode.type === 'leaf') {
