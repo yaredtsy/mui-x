@@ -71,6 +71,12 @@ export const useGridInfiniteLoader = (
     ],
   );
 
+  React.useEffect(() => {
+    if (isInScrollBottomArea.current) {
+      isInScrollBottomArea.current = false;
+    }
+  }, [currentPage.rows.length]);
+
   const handleGridScroll = React.useCallback<GridEventListener<'scrollPositionChange'>>(
     ({ left, top }) => {
       handleRowsScrollEnd({ left, top });
