@@ -25,6 +25,7 @@ const VirtualScrollerRoot = styled('div', {
 })<{ ownerState: OwnerState }>({
   overflow: 'auto',
   height: '100%',
+
   // See https://github.com/mui/mui-x/issues/4360
   position: 'relative',
   '@media print': {
@@ -38,11 +39,16 @@ const GridVirtualScroller = React.forwardRef<
 >(function GridVirtualScroller(props, ref) {
   const rootProps = useGridRootProps();
   const classes = useUtilityClasses(rootProps);
+  const styles = React.useMemo(
+    () => (rootProps.autoHeight ? props.style : { ...props.style, flex: '1 1 0' }),
+    [rootProps.autoHeight, props.style],
+  );
 
   return (
     <VirtualScrollerRoot
       ref={ref}
       {...props}
+      style={styles}
       className={clsx(classes.root, props.className)}
       ownerState={rootProps}
     />
