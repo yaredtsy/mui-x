@@ -25,6 +25,7 @@ import {
 import { ChartsAxisHighlight, ChartsAxisHighlightProps } from '../ChartsAxisHighlight';
 import { ChartsClipPath } from '../ChartsClipPath';
 import { ChartsAxisSlotsComponent, ChartsAxisSlotComponentProps } from '../models/axis';
+import OnClickHandler from '../OnClickHandler';
 
 export interface BarChartSlotsComponent
   extends ChartsAxisSlotsComponent,
@@ -58,6 +59,7 @@ export interface BarChartProps
    */
   slotProps?: BarChartSlotComponentProps;
   layout?: BarSeriesType['layout'];
+  onClick?: (event: any, series: any, itemData: any) => void;
 }
 
 const BarChart = React.forwardRef(function BarChart(props: BarChartProps, ref) {
@@ -82,6 +84,7 @@ const BarChart = React.forwardRef(function BarChart(props: BarChartProps, ref) {
     children,
     slots,
     slotProps,
+    onClick,
   } = props;
 
   const id = useId();
@@ -143,6 +146,7 @@ const BarChart = React.forwardRef(function BarChart(props: BarChartProps, ref) {
       <ChartsLegend {...legend} slots={slots} slotProps={slotProps} />
       <ChartsAxisHighlight {...defaultizedAxisHighlight} />
       <ChartsTooltip {...tooltip} slots={slots} slotProps={slotProps} />
+      <OnClickHandler trigger={tooltip?.trigger} onClick={onClick} />
       <ChartsClipPath id={clipPathId} />
       {children}
     </ResponsiveChartContainer>
@@ -241,6 +245,7 @@ BarChart.propTypes = {
     right: PropTypes.number,
     top: PropTypes.number,
   }),
+  onClick: PropTypes.func,
   /**
    * Indicate which axis to display the right of the charts.
    * Can be a string (the id of the axis) or an object `ChartsYAxisProps`.

@@ -21,9 +21,10 @@ import {
   ChartsLegendSlotsComponent,
 } from '../ChartsLegend';
 import { ChartsAxisHighlight, ChartsAxisHighlightProps } from '../ChartsAxisHighlight';
-import { PiePlot, PiePlotProps, PiePlotSlotComponentProps, PiePlotSlotsComponent } from './PiePlot';
+import { PiePlot, PiePlotSlotComponentProps, PiePlotSlotsComponent } from './PiePlot';
 import { PieValueType } from '../models/seriesType/pie';
 import { ChartsAxisSlotsComponent, ChartsAxisSlotComponentProps } from '../models/axis';
+import OnClickHandler from '../OnClickHandler';
 
 export interface PieChartSlotsComponent
   extends ChartsAxisSlotsComponent,
@@ -46,7 +47,7 @@ export interface PieChartProps
    * @deprecated Consider using `slotProps.legend` instead.
    */
   legend?: ChartsLegendProps;
-  onClick?: PiePlotProps['onClick'];
+  onClick?: (event: any, series: any, itemData: any) => void;
 
   slots?: PieChartSlotsComponent;
   /**
@@ -117,6 +118,7 @@ function PieChart(props: PieChartProps) {
       <ChartsLegend {...legend} slots={slots} slotProps={slotProps} />
       <ChartsAxisHighlight {...axisHighlight} />
       <ChartsTooltip {...tooltip} />
+      <OnClickHandler trigger={tooltip?.trigger} onClick={onClick} />
       {children}
     </ResponsiveChartContainer>
   );
