@@ -1,4 +1,7 @@
-import { screen, userEvent } from '@mui/monorepo/test/utils';
+import { screen } from '@mui/internal-test-utils';
+import { getFieldSectionsContainer } from 'test/utils/pickers/fields';
+import { pickersInputBaseClasses } from '@mui/x-date-pickers/PickersTextField';
+import { fireUserEvent } from '../fireUserEvent';
 
 export type OpenPickerParams =
   | {
@@ -6,7 +9,7 @@ export type OpenPickerParams =
       variant: 'mobile' | 'desktop';
     }
   | {
-      type: 'date-range';
+      type: 'date-range' | 'date-time-range';
       variant: 'mobile' | 'desktop';
       initialFocus: 'start' | 'end';
       /**
@@ -16,27 +19,33 @@ export type OpenPickerParams =
     };
 
 export const openPicker = (params: OpenPickerParams) => {
-  if (params.type === 'date-range') {
-    if (params.isSingleInput) {
-      const target = screen.getByRole<HTMLInputElement>('textbox');
-      userEvent.mousePress(target);
-      const cursorPosition = params.initialFocus === 'start' ? 0 : target.value.length - 1;
+  const isRangeType = params.type === 'date-range' || params.type === 'date-time-range';
+  const fieldSectionsContainer = getFieldSectionsContainer(
+    isRangeType && !params.isSingleInput && params.initialFocus === 'end' ? 1 : 0,
+  );
 
-      return target.setSelectionRange(cursorPosition, cursorPosition);
+  if (isRangeType) {
+    fireUserEvent.mousePress(fieldSectionsContainer);
+
+    if (params.isSingleInput && params.initialFocus === 'end') {
+      const sections = fieldSectionsContainer.querySelectorAll(
+        `.${pickersInputBaseClasses.sectionsContainer}`,
+      );
+
+      fireUserEvent.mousePress(sections[sections.length - 1]);
     }
 
-    const target = screen.getAllByRole('textbox')[params.initialFocus === 'start' ? 0 : 1];
-
-    return userEvent.mousePress(target);
+    return undefined;
   }
 
   if (params.variant === 'mobile') {
-    return userEvent.mousePress(screen.getByRole('textbox'));
+    return fireUserEvent.mousePress(fieldSectionsContainer);
   }
 
   const target =
     params.type === 'time'
       ? screen.getByLabelText(/choose time/i)
       : screen.getByLabelText(/choose date/i);
-  return userEvent.mousePress(target);
+
+  return fireUserEvent.mousePress(target);
 };

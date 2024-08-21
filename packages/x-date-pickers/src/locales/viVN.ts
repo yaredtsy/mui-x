@@ -15,16 +15,20 @@ const viVNPickers: Partial<PickersLocaleText<any>> = {
   nextMonth: 'Tháng sau',
 
   // View navigation
-  openPreviousView: 'mở xem trước',
-  openNextView: 'mở xem sau',
+  openPreviousView: 'Mở xem trước',
+  openNextView: 'Mở xem sau',
   calendarViewSwitchingButtonAriaLabel: (view) =>
     view === 'year'
       ? 'đang mở xem năm, chuyển sang xem lịch'
       : 'đang mở xem lịch, chuyển sang xem năm',
 
-  // DateRange placeholders
+  // DateRange labels
   start: 'Bắt đầu',
   end: 'Kết thúc',
+  startDate: 'Ngày bắt đầu',
+  startTime: 'Thời gian bắt đầu',
+  endDate: 'Ngày kết thúc',
+  endTime: 'Thời gian kết thúc',
 
   // Action bar
   cancelButtonLabel: 'Hủy',
@@ -40,11 +44,7 @@ const viVNPickers: Partial<PickersLocaleText<any>> = {
 
   // Clock labels
   clockLabelText: (view, time, adapter) =>
-    `Chọn ${views[view]}. ${
-      time === null
-        ? 'Không có giờ được chọn'
-        : `Giờ được chọn là ${adapter.format(time, 'fullTime')}`
-    }`,
+    `Chọn ${views[view]}. ${time === null ? 'Không có giờ được chọn' : `Giờ được chọn là ${adapter.format(time, 'fullTime')}`}`,
   hoursClockNumberText: (hours) => `${hours} giờ`,
   minutesClockNumberText: (minutes) => `${minutes} phút`,
   secondsClockNumberText: (seconds) => `${seconds} giây`,
@@ -67,7 +67,7 @@ const viVNPickers: Partial<PickersLocaleText<any>> = {
     value !== null && utils.isValid(value)
       ? `Chọn giờ, giờ đã chọn là ${utils.format(value, 'fullTime')}`
       : 'Chọn giờ',
-  // fieldClearLabel: 'Clear value',
+  fieldClearLabel: 'Xóa giá trị',
 
   // Table labels
   timeTableLabel: 'chọn giờ',
@@ -82,6 +82,19 @@ const viVNPickers: Partial<PickersLocaleText<any>> = {
   fieldMinutesPlaceholder: () => 'mm',
   fieldSecondsPlaceholder: () => 'ss',
   fieldMeridiemPlaceholder: () => 'aa',
+
+  // View names
+  year: 'Năm',
+  month: 'Tháng',
+  day: 'Ngày',
+  weekDay: 'Thứ',
+  hours: 'Giờ',
+  minutes: 'Phút',
+  seconds: 'Giây',
+  meridiem: 'Buổi',
+
+  // Common
+  empty: 'Trống',
 };
 
 export const viVN = getPickersLocalization(viVNPickers);

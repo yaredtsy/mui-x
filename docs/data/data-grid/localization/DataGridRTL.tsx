@@ -1,6 +1,17 @@
 import * as React from 'react';
-import { DataGrid, GridColDef, arSD } from '@mui/x-data-grid';
+import { prefixer } from 'stylis';
+import rtlPlugin from 'stylis-plugin-rtl';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { arSD } from '@mui/x-data-grid/locales';
+import createCache from '@emotion/cache';
+import { CacheProvider } from '@emotion/react';
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
+
+// Create rtl cache
+const cacheRtl = createCache({
+  key: 'data-grid-rtl-demo',
+  stylisPlugins: [prefixer, rtlPlugin],
+});
 
 const columns: GridColDef[] = [
   {
@@ -16,7 +27,7 @@ const columns: GridColDef[] = [
   {
     field: 'age',
     headerName: 'عمر',
-    valueGetter: (params) => `${params.value} سنوات`,
+    valueGetter: (value) => `${value} سنوات`,
     width: 150,
   },
   {
@@ -40,7 +51,9 @@ const rows = [
 ];
 
 export default function DataGridRTL() {
+  // Inherit the theme from the docs site (dark/light mode)
   const existingTheme = useTheme();
+
   const theme = React.useMemo(
     () =>
       createTheme({}, arSD, existingTheme, {
@@ -49,10 +62,12 @@ export default function DataGridRTL() {
     [existingTheme],
   );
   return (
-    <ThemeProvider theme={theme}>
-      <div dir="rtl" style={{ height: 400, width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} />
-      </div>
-    </ThemeProvider>
+    <CacheProvider value={cacheRtl}>
+      <ThemeProvider theme={theme}>
+        <div dir="rtl" style={{ height: 400, width: '100%' }}>
+          <DataGrid rows={rows} columns={columns} />
+        </div>
+      </ThemeProvider>
+    </CacheProvider>
   );
 }

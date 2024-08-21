@@ -2,94 +2,90 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import MuiTextField from '@mui/material/TextField';
 import { useThemeProps } from '@mui/material/styles';
-import { useSlotProps } from '@mui/base/utils';
+import useSlotProps from '@mui/utils/useSlotProps';
 import { refType } from '@mui/utils';
-import {
-  TimeFieldProps,
-  TimeFieldSlotsComponent,
-  TimeFieldSlotsComponentsProps,
-} from './TimeField.types';
+import { TimeFieldProps } from './TimeField.types';
 import { useTimeField } from './useTimeField';
 import { useClearableField } from '../hooks';
+import { PickersTextField } from '../PickersTextField';
+import { convertFieldResponseIntoMuiTextFieldProps } from '../internals/utils/convertFieldResponseIntoMuiTextFieldProps';
+import { PickerValidDate } from '../models';
 
-type TimeFieldComponent = (<TDate>(
-  props: TimeFieldProps<TDate> & React.RefAttributes<HTMLDivElement>,
+type TimeFieldComponent = (<
+  TDate extends PickerValidDate,
+  TEnableAccessibleFieldDOMStructure extends boolean = false,
+>(
+  props: TimeFieldProps<TDate, TEnableAccessibleFieldDOMStructure> &
+    React.RefAttributes<HTMLDivElement>,
 ) => React.JSX.Element) & { propTypes?: any };
 
-const TimeField = React.forwardRef(function TimeField<TDate>(
-  inProps: TimeFieldProps<TDate>,
-  ref: React.Ref<HTMLDivElement>,
+/**
+ * Demos:
+ *
+ * - [TimeField](http://mui.com/x/react-date-pickers/time-field/)
+ * - [Fields](https://mui.com/x/react-date-pickers/fields/)
+ *
+ * API:
+ *
+ * - [TimeField API](https://mui.com/x/api/date-pickers/time-field/)
+ */
+const TimeField = React.forwardRef(function TimeField<
+  TDate extends PickerValidDate,
+  TEnableAccessibleFieldDOMStructure extends boolean = false,
+>(
+  inProps: TimeFieldProps<TDate, TEnableAccessibleFieldDOMStructure>,
+  inRef: React.Ref<HTMLDivElement>,
 ) {
   const themeProps = useThemeProps({
     props: inProps,
     name: 'MuiTimeField',
   });
 
-  const { slots, slotProps, components, componentsProps, InputProps, inputProps, ...other } =
-    themeProps;
+  const { slots, slotProps, InputProps, inputProps, ...other } = themeProps;
 
   const ownerState = themeProps;
 
-  const TextField = slots?.textField ?? components?.TextField ?? MuiTextField;
-  const { inputRef: externalInputRef, ...textFieldProps }: TimeFieldProps<TDate> = useSlotProps({
+  const TextField =
+    slots?.textField ??
+    (inProps.enableAccessibleFieldDOMStructure ? PickersTextField : MuiTextField);
+  const textFieldProps = useSlotProps({
     elementType: TextField,
-    externalSlotProps: slotProps?.textField ?? componentsProps?.textField,
+    externalSlotProps: slotProps?.textField,
     externalForwardedProps: other,
     ownerState,
-  });
+    additionalProps: {
+      ref: inRef,
+    },
+  }) as TimeFieldProps<TDate, TEnableAccessibleFieldDOMStructure>;
 
   // TODO: Remove when mui/material-ui#35088 will be merged
   textFieldProps.inputProps = { ...inputProps, ...textFieldProps.inputProps };
   textFieldProps.InputProps = { ...InputProps, ...textFieldProps.InputProps };
 
-  const {
-    ref: inputRef,
-    onPaste,
-    onKeyDown,
-    inputMode,
-    readOnly,
-    clearable,
-    onClear,
-    ...fieldProps
-  } = useTimeField<TDate, typeof textFieldProps>({
-    props: textFieldProps,
-    inputRef: externalInputRef,
-  });
+  const fieldResponse = useTimeField<
+    TDate,
+    TEnableAccessibleFieldDOMStructure,
+    typeof textFieldProps
+  >(textFieldProps);
+  const convertedFieldResponse = convertFieldResponseIntoMuiTextFieldProps(fieldResponse);
 
-  const { InputProps: ProcessedInputProps, fieldProps: processedFieldProps } = useClearableField<
-    typeof fieldProps,
-    typeof fieldProps.InputProps,
-    TimeFieldSlotsComponent,
-    TimeFieldSlotsComponentsProps<TDate>
-  >({
-    onClear,
-    clearable,
-    fieldProps,
-    InputProps: fieldProps.InputProps,
+  const processedFieldProps = useClearableField({
+    ...convertedFieldResponse,
     slots,
     slotProps,
-    components,
-    componentsProps,
   });
 
-  return (
-    <TextField
-      ref={ref}
-      {...processedFieldProps}
-      InputProps={{ ...ProcessedInputProps, readOnly }}
-      inputProps={{ ...fieldProps.inputProps, inputMode, onPaste, onKeyDown, ref: inputRef }}
-    />
-  );
+  return <TextField {...processedFieldProps} />;
 }) as TimeFieldComponent;
 
 TimeField.propTypes = {
   // ----------------------------- Warning --------------------------------
   // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "yarn proptypes"  |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
   /**
    * 12h/24h view for hour selection clock.
-   * @default `utils.is12HourCycleInCurrentLocale()`
+   * @default utils.is12HourCycleInCurrentLocale()
    */
   ampm: PropTypes.bool,
   /**
@@ -106,27 +102,15 @@ TimeField.propTypes = {
   /**
    * The color of the component.
    * It supports both default and custom theme colors, which can be added as shown in the
-   * [palette customization guide](https://mui.com/material-ui/customization/palette/#adding-new-colors).
+   * [palette customization guide](https://mui.com/material-ui/customization/palette/#custom-colors).
    * @default 'primary'
    */
   color: PropTypes.oneOf(['error', 'info', 'primary', 'secondary', 'success', 'warning']),
   component: PropTypes.elementType,
   /**
-   * Overridable components.
-   * @default {}
-   * @deprecated Please use `slots`.
-   */
-  components: PropTypes.object,
-  /**
-   * The props used for each component slot.
-   * @default {}
-   * @deprecated Please use `slotProps`.
-   */
-  componentsProps: PropTypes.object,
-  /**
    * The default value. Use when the component is not controlled.
    */
-  defaultValue: PropTypes.any,
+  defaultValue: PropTypes.object,
   /**
    * If `true`, the component is disabled.
    * @default false
@@ -147,6 +131,10 @@ TimeField.propTypes = {
    * @default false
    */
   disablePast: PropTypes.bool,
+  /**
+   * @default false
+   */
+  enableAccessibleFieldDOMStructure: PropTypes.bool,
   /**
    * If `true`, the component is displayed in focused state.
    */
@@ -219,12 +207,12 @@ TimeField.propTypes = {
    * Maximal selectable time.
    * The date part of the object will be ignored unless `props.disableIgnoringDatePartForTimeValidation === true`.
    */
-  maxTime: PropTypes.any,
+  maxTime: PropTypes.object,
   /**
    * Minimal selectable time.
    * The date part of the object will be ignored unless `props.disableIgnoringDatePartForTimeValidation === true`.
    */
-  minTime: PropTypes.any,
+  minTime: PropTypes.object,
   /**
    * Step over minutes.
    * @default 1
@@ -272,7 +260,7 @@ TimeField.propTypes = {
    * For example, on time fields it will be used to determine the date to set.
    * @default The closest valid date using the validation props, except callbacks such as `shouldDisableDate`. Value is rounded to the most granular section used.
    */
-  referenceDate: PropTypes.any,
+  referenceDate: PropTypes.object,
   /**
    * If `true`, the label is displayed as required and the `input` element is required.
    * @default false
@@ -280,17 +268,18 @@ TimeField.propTypes = {
   required: PropTypes.bool,
   /**
    * The currently selected sections.
-   * This prop accept four formats:
+   * This prop accepts four formats:
    * 1. If a number is provided, the section at this index will be selected.
-   * 2. If an object with a `startIndex` and `endIndex` properties are provided, the sections between those two indexes will be selected.
-   * 3. If a string of type `FieldSectionType` is provided, the first section with that name will be selected.
-   * 4. If `null` is provided, no section will be selected
+   * 2. If a string of type `FieldSectionType` is provided, the first section with that name will be selected.
+   * 3. If `"all"` is provided, all the sections will be selected.
+   * 4. If `null` is provided, no section will be selected.
    * If not provided, the selected sections will be handled internally.
    */
   selectedSections: PropTypes.oneOfType([
     PropTypes.oneOf([
       'all',
       'day',
+      'empty',
       'hours',
       'meridiem',
       'minutes',
@@ -300,19 +289,7 @@ TimeField.propTypes = {
       'year',
     ]),
     PropTypes.number,
-    PropTypes.shape({
-      endIndex: PropTypes.number.isRequired,
-      startIndex: PropTypes.number.isRequired,
-    }),
   ]),
-  /**
-   * Disable specific clock time.
-   * @param {number} clockValue The value to check.
-   * @param {TimeView} view The clock type of the timeValue.
-   * @returns {boolean} If `true` the time will be disabled.
-   * @deprecated Consider using `shouldDisableTime`.
-   */
-  shouldDisableClock: PropTypes.func,
   /**
    * Disable specific time.
    * @template TDate
@@ -333,7 +310,7 @@ TimeField.propTypes = {
    * Warning n°3: When used in strict mode, dayjs and moment require to respect the leading zeros.
    * This mean that when using `shouldRespectLeadingZeros={false}`, if you retrieve the value directly from the input (not listening to `onChange`) and your format contains tokens without leading zeros, the value will not be parsed by your library.
    *
-   * @default `false`
+   * @default false
    */
   shouldRespectLeadingZeros: PropTypes.bool,
   /**
@@ -363,7 +340,7 @@ TimeField.propTypes = {
    * Choose which timezone to use for the value.
    * Example: "default", "system", "UTC", "America/New_York".
    * If you pass values from other timezones to some props, they will be converted to this timezone before being used.
-   * @see See the {@link https://mui.com/x/react-date-pickers/timezone/ timezones documention} for more details.
+   * @see See the {@link https://mui.com/x/react-date-pickers/timezone/ timezones documentation} for more details.
    * @default The timezone of the `value` or `defaultValue` prop is defined, 'default' otherwise.
    */
   timezone: PropTypes.string,
@@ -375,7 +352,7 @@ TimeField.propTypes = {
    * The selected value.
    * Used when the component is controlled.
    */
-  value: PropTypes.any,
+  value: PropTypes.object,
   /**
    * The variant to use.
    * @default 'outlined'
